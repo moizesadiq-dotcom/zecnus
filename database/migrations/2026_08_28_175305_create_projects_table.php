@@ -1,28 +1,27 @@
 <?php
 
-namespace App\Models;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-
-class Project extends Model
+return new class extends Migration
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'client_id',
-        'title',
-        'category',
-        'description',
-        'budget',
-        'deadline',
-        'progress',
-        'status',
-    ];
-
-    public function client()
+    public function up(): void
     {
-        return $this->belongsTo(User::class, 'client_id');
+        Schema::create('projects', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('client_id')->constrained('users')->cascadeOnDelete();
+            $table->string('title');
+            $table->string('category')->nullable();
+            $table->text('description')->nullable();
+            $table->unsignedInteger('progress')->default(0);
+            $table->string('status')->default('Pending');
+            $table->timestamps();
+        });
     }
-}
+
+    public function down(): void
+    {
+        Schema::dropIfExists('projects');
+    }
+};

@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
+use App\Models\Project;
+use App\Models\Service;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-
-use App\Models\User;
-use App\Models\Project;
-use App\Models\Ticket;
-use App\Models\Invoice;
-use App\Models\Service;
 
 class ClientController extends Controller
 {
@@ -32,7 +31,6 @@ class ClientController extends Controller
         return view('admin.auth.login');
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | CLIENT LOGIN
@@ -52,14 +50,13 @@ class ClientController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | LOGIN ATTEMPT
         |--------------------------------------------------------------------------
         */
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
 
             return back()
                 ->withErrors([
@@ -70,7 +67,6 @@ class ClientController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | REGENERATE SESSION
@@ -80,7 +76,6 @@ class ClientController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -104,7 +99,6 @@ class ClientController extends Controller
                 );
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | CLIENT LOGIN SUCCESS
@@ -121,7 +115,6 @@ class ClientController extends Controller
                 'Welcome back!'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -142,9 +135,8 @@ class ClientController extends Controller
             }
         }
 
-        return view('auth.register');
+        return view('admin.auth.register');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -175,7 +167,6 @@ class ClientController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | CREATE CLIENT
@@ -194,7 +185,6 @@ class ClientController extends Controller
             'role' => 'client',
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | LOGIN AFTER REGISTER
@@ -204,7 +194,6 @@ class ClientController extends Controller
         Auth::login($user);
 
         $request->session()->regenerate();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -220,7 +209,6 @@ class ClientController extends Controller
             );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | CLIENT HOME
@@ -235,7 +223,6 @@ class ClientController extends Controller
 
         $projects = Project::latest()->get();
 
-
         return view(
             'home',
             compact(
@@ -245,7 +232,6 @@ class ClientController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -258,28 +244,25 @@ class ClientController extends Controller
         $user = Auth::user();
 
         $projects = Project::where(
-                'client_id',
-                $user->id
-            )
+            'client_id',
+            $user->id
+        )
             ->latest()
             ->get();
-
 
         $invoices = Invoice::where(
-                'client_id',
-                $user->id
-            )
+            'client_id',
+            $user->id
+        )
             ->latest()
             ->get();
-
 
         $tickets = Ticket::where(
-                'user_id',
-                $user->id
-            )
+            'user_id',
+            $user->id
+        )
             ->latest()
             ->get();
-
 
         return view(
             'client.dashboard',
@@ -292,7 +275,6 @@ class ClientController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | CLIENT PROJECTS
@@ -304,12 +286,11 @@ class ClientController extends Controller
         $user = Auth::user();
 
         $projects = Project::where(
-                'client_id',
-                $user->id
-            )
+            'client_id',
+            $user->id
+        )
             ->latest()
             ->get();
-
 
         return view(
             'client.projects',
@@ -319,7 +300,6 @@ class ClientController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -331,17 +311,15 @@ class ClientController extends Controller
     {
         $user = Auth::user();
 
-
         $project = Project::where(
-                'client_id',
-                $user->id
-            )
+            'client_id',
+            $user->id
+        )
             ->where(
                 'id',
                 $id
             )
             ->firstOrFail();
-
 
         return view(
             'client.project-detail',
@@ -351,7 +329,6 @@ class ClientController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -363,14 +340,12 @@ class ClientController extends Controller
     {
         $user = Auth::user();
 
-
         $invoices = Invoice::where(
-                'client_id',
-                $user->id
-            )
+            'client_id',
+            $user->id
+        )
             ->latest()
             ->get();
-
 
         return view(
             'client.invoices',
@@ -380,7 +355,6 @@ class ClientController extends Controller
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -392,14 +366,12 @@ class ClientController extends Controller
     {
         $user = Auth::user();
 
-
         $tickets = Ticket::where(
-                'user_id',
-                $user->id
-            )
+            'user_id',
+            $user->id
+        )
             ->latest()
             ->get();
-
 
         return view(
             'client.support',
@@ -410,7 +382,6 @@ class ClientController extends Controller
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | STORE SUPPORT TICKET
@@ -420,7 +391,6 @@ class ClientController extends Controller
     public function storeTicket(Request $request)
     {
         $user = Auth::user();
-
 
         $validated = $request->validate([
             'subject' => [
@@ -436,7 +406,6 @@ class ClientController extends Controller
             ],
         ]);
 
-
         Ticket::create([
             'user_id' => $user->id,
 
@@ -447,7 +416,6 @@ class ClientController extends Controller
             'status' => 'Pending',
         ]);
 
-
         return redirect()
             ->route('client.support')
             ->with(
@@ -455,7 +423,6 @@ class ClientController extends Controller
                 'Support ticket submitted successfully!'
             );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -467,13 +434,11 @@ class ClientController extends Controller
     {
         $user = Auth::user();
 
-
         return view(
             'client.profile',
             compact('user')
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -484,7 +449,6 @@ class ClientController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-
 
         $validatedData = $request->validate([
             'name' => [
@@ -497,7 +461,7 @@ class ClientController extends Controller
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email,' . $user->id,
+                'unique:users,email,'.$user->id,
             ],
 
             'phone' => [
@@ -532,7 +496,6 @@ class ClientController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | PROFILE PHOTO
@@ -554,7 +517,6 @@ class ClientController extends Controller
                 );
             }
 
-
             $path = $request
                 ->file('profile_photo')
                 ->store(
@@ -562,11 +524,9 @@ class ClientController extends Controller
                     'public'
                 );
 
-
             $validatedData['profile_photo'] =
-                'storage/' . $path;
+                'storage/'.$path;
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -575,7 +535,6 @@ class ClientController extends Controller
         */
 
         $user->update($validatedData);
-
 
         return back()->with(
             'success',

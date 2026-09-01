@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class Ticket extends Model
 {
@@ -12,6 +11,7 @@ class Ticket extends Model
 
     protected $fillable = [
         'client_id',
+        'user_id',
         'subject',
         'message',
         'status',

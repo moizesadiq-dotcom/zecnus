@@ -1,0 +1,61 @@
+name: zecnus
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-zecnus}
+      MYSQL_USER: ${DB_USERNAME:-zecnus}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-zecnus}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootsecret}
+    volumes:
+      - zecnus_mysql:/var/lib/mysql
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u${DB_USERNAME:-zecnus}", "-p${DB_PASSWORD:-zecnus}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 512m
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${ZECNUS_IMAGE:-zecnus:local}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-zecnus}
+      DB_USERNAME: ${DB_USERNAME:-zecnus}
+      DB_PASSWORD: ${DB_PASSWORD:-zecnus}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - zecnus_storage:/var/www/html/storage
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 25s
+
+volumes:
+  zecnus_mysql:
+  zecnus_storage:

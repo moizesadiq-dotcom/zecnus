@@ -1,4 +1,39 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Zecnus
+
+Laravel 12 client/admin portal. Local path: `/Users/zubairayub/Documents/zecnus`. Remote: https://github.com/moizesadiq-dotcom/zecnus
+
+## Run locally
+
+```bash
+composer install
+cp .env.example .env && php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+npm ci && npm run build
+php artisan serve
+```
+
+App: http://127.0.0.1:8000  
+Client login: `/login`  
+Admin login: `/admin-secret-login`  
+Seeded admin: `admin@zacnus.com` / `password` (change this before production)
+
+## Docker
+
+```bash
+cp .env.example .env && php artisan key:generate
+docker compose up --build -d
+```
+
+App: http://localhost:8080 — health: http://localhost:8080/up
+
+## CI/CD
+
+Pushes and PRs run `.github/workflows/ci.yml` (gitleaks, PHPUnit, Vite, Docker build, Trivy, `/up` smoke).  
+CD publishes to GHCR after CI is green. VPS deploy stays off until repo variable `VPS_DEPLOY=true` and production secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `DEPLOY_PATH` are set.
+
+Protect `main`: require those CI jobs before merge.
+
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
