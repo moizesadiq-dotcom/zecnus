@@ -37,7 +37,7 @@ jobs:
           php-version: "8.2"
           extensions: mbstring, pdo_sqlite, tokenizer, xml, ctype, json, bcmath
           coverage: none
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
       - name: Pint (changed PHP only)
         run: vendor/bin/pint --test tests database/factories/UserFactory.php app/Http/Controllers/ClientController.php
       - name: PHPUnit
