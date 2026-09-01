@@ -11,7 +11,7 @@ COPY resources ./resources
 COPY public ./public
 RUN npm run build
 
-FROM composer:2.8 AS vendor
+FROM composer:2.10 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install \
