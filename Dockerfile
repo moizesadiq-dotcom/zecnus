@@ -23,7 +23,7 @@ RUN composer install \
 COPY . .
 RUN composer dump-autoload --no-dev --optimize --no-scripts
 
-FROM php:8.2-fpm-alpine AS runtime
+FROM php:8.5-fpm-alpine AS runtime
 
 RUN apk add --no-cache \
         nginx \
