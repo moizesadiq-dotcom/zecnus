@@ -57,13 +57,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-      - name: SSH deploy
+      - name: Copy compose file and start stack (no git on VPS)
         env:
           SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p "${HOME}/.ssh"
@@ -71,6 +72,10 @@ jobs:
           printf '%s\n' "${SSH_KEY}" > "${HOME}/.ssh/deploy_key"
           chmod 600 "${HOME}/.ssh/deploy_key"
           ssh-keyscan -H "${VPS_HOST}" >> "${HOME}/.ssh/known_hosts"
-          ssh -i "${HOME}/.ssh/deploy_key" -o IdentitiesOnly=yes \
-            "${VPS_USER}@${VPS_HOST}" \
-            "cd '${DEPLOY_PATH}' && export ZECNUS_IMAGE='${IMAGE}' && docker compose pull app && docker compose up -d --wait --remove-orphans"
+          SSH=(ssh -i "${HOME}/.ssh/deploy_key" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
+          SCP=(scp -i "${HOME}/.ssh/deploy_key" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes)
+          "${SSH[@]}" "${VPS_USER}@${VPS_HOST}" "mkdir -p '${DEPLOY_PATH}'"
+          "${SCP[@]}" docker-compose.prod.yml "${VPS_USER}@${VPS_HOST}:${DEPLOY_PATH}/docker-compose.yml"
+          "${SCP[@]}" scripts/deploy/remote.sh "${VPS_USER}@${VPS_HOST}:${DEPLOY_PATH}/remote.sh"
+          "${SSH[@]}" "${VPS_USER}@${VPS_HOST}" \
+            "chmod +x '${DEPLOY_PATH}/remote.sh' && DEPLOY_PATH='${DEPLOY_PATH}' ZECNUS_IMAGE='${IMAGE}' GHCR_USER='${GITHUB_ACTOR}' GHCR_TOKEN='${GHCR_TOKEN}' bash '${DEPLOY_PATH}/remote.sh'"
