@@ -2,7 +2,7 @@
 # Multi-stage Laravel 12 image: build frontend, install PHP deps, run nginx+php-fpm.
 # Runtime is fail-closed: no .env in the image, no composer/dev tools, health on /up.
 
-FROM node:20-alpine AS assets
+FROM node:26-alpine AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
